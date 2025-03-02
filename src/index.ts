@@ -3,6 +3,10 @@ import chalk from 'chalk';
 import setupCommand from './commands/setup';
 import compileCommand from './commands/build';
 import accountCommands from './commands/account';
+import balanceCommand from './commands/balance';
+import deployCommand from './commands/deploy';
+import verifyCommand from './commands/verify';
+import devCommand from './commands/dev';
 
 const program = new Command();
 
@@ -14,12 +18,18 @@ program
 setupCommand(program);
 compileCommand(program)
 accountCommands(program)
+balanceCommand(program);
+deployCommand(program);
+verifyCommand(program);
+devCommand(program)
+
+
 
 
 // Default command when no arguments provided
 program.action(() => {
   console.log(`
-${chalk.blue('Mega Blockchain CLI v0.1.0')}
+${chalk.blue('Mega CLI v0.1.0')}
 A complete development environment for MegaETH
 
 ${chalk.yellow('Available commands:')}
@@ -28,7 +38,7 @@ ${chalk.yellow('Available commands:')}
   ${chalk.green('dev')}            Start development environments
   ${chalk.green('account')}        Manage accounts and wallets
   ${chalk.green('faucet')}         Request test tokens
-  ${chalk.green('compile')}        Compile Solidity contracts
+  ${chalk.green('compile')}        Compile contracts
   ${chalk.green('deploy')}         Deploy contracts to Mega testnet
   ${chalk.green('verify')}         Verify contracts on block explorer
   ${chalk.green('setup')}          Check and install dependencies
