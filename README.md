@@ -12,7 +12,7 @@ A complete development environment for the Mega blockchain. This CLI streamlines
 - **Account management**: Create, import, and manage blockchain accounts
 - **Smart contract operations**: Compile, deploy, and verify contracts on Mega testnet
 - **MegaETH operations**: Check balances and request tokens from faucet
-- **Foundry integration**: Seamless integration with Foundry tools (Anvil, Forge, Cast, Chisel)
+- **Foundry**: Many Mega CLI commands are wrappers around Foundry (Anvil, Forge, Cast, Chisel) commands 
 
 ## Installation
 
