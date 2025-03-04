@@ -1,7 +1,7 @@
 {
   "name": "megaeth-cli",
-  "version": "0.5.0",
-  "description": "A CLI tool for MegaETH",
+  "version": "0.5.1",
+  "description": "A CLI tool for MegaETH (install globally with -g flag)",
   "bin": {
     "mega": "./bin/mega.js"
   },
@@ -22,6 +22,7 @@
     "cli",
     "foundry"
   ],
+  "preferGlobal": true,
   "author": "awesamarth",
   "repository": {
     "type": "git",
