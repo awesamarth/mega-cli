@@ -23,6 +23,10 @@
     "foundry"
   ],
   "author": "awesamarth",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awesamarth/mega-cli.git"
+  },
   "license": "MIT",
   "dependencies": {
     "chalk": "4.1.2",
