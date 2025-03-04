@@ -7,6 +7,8 @@ import balanceCommand from './commands/balance';
 import deployCommand from './commands/deploy';
 import verifyCommand from './commands/verify';
 import devCommand from './commands/dev';
+import dethCommand from './commands/deth';
+import initCommand from './commands/init';
 
 const program = new Command();
 
@@ -22,6 +24,8 @@ balanceCommand(program);
 deployCommand(program);
 verifyCommand(program);
 devCommand(program)
+dethCommand(program)
+initCommand(program)
 
 
 

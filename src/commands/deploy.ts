@@ -58,6 +58,22 @@ export default function deployCommand(program: Command) {
         console.log(`${chalk.blue('Deploying to:')} ${options.testnet ? 'Mega Testnet' : 'Local Network'}`);
         console.log(`${chalk.gray('RPC URL:')} ${rpcUrl}`);
         console.log(`${chalk.blue('Contract:')} ${contract}`);
+
+        if (!options.testnet) {  // If deploying to local network
+          // Check if any wallet option is provided
+          const hasWalletOption = options.privateKey || 
+                                 options.privateKeys || 
+                                 options.keystore || 
+                                 options.account || 
+                                 options.from || 
+                                 options.interactive;
+          
+          // If no wallet option is provided, use the default Anvil private key
+          if (!hasWalletOption && options.broadcast) {
+            options.privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+            console.log(`${chalk.gray('Using the first account provided by Anvil')}`);
+          }
+        }
         
         // Build forge create command
         let forgeCommand = `forge create ${contract} --rpc-url ${rpcUrl}`;

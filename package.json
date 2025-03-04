@@ -1,6 +1,6 @@
 {
-  "name": "mega-cli",
-  "version": "1.0.0",
+  "name": "megaeth-cli",
+  "version": "0.5.0",
   "description": "",
   "bin": {
     "mega": "./bin/mega.js"
@@ -15,7 +15,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "chalk": "4.1.2",
     "commander": "^13.1.0",
