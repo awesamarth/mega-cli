@@ -1,7 +1,7 @@
 {
   "name": "megaeth-cli",
   "version": "0.5.0",
-  "description": "",
+  "description": "A CLI tool for MegaETH",
   "bin": {
     "mega": "./bin/mega.js"
   },
@@ -13,8 +13,16 @@
     "start": "node ./bin/mega.js",
     "dev": "ts-node src/index.ts"
   },
-  "keywords": [],
-  "author": "",
+  "keywords":  [
+    "blockchain",
+    "ethereum",
+    "mega",
+    "layer2",
+    "megaeth",
+    "cli",
+    "foundry"
+  ],
+  "author": "awesamarth",
   "license": "MIT",
   "dependencies": {
     "chalk": "4.1.2",

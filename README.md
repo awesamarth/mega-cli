@@ -11,8 +11,8 @@ A complete development environment for the Mega blockchain. This CLI streamlines
 - **Development environment**: Easily start local blockchain or frontend development servers
 - **Account management**: Create, import, and manage blockchain accounts
 - **Smart contract operations**: Compile, deploy, and verify contracts on Mega testnet
-- **Ethereum operations**: Check balances and request tokens from faucet
-- **Foundry integration**: Seamless integration with Foundry tools (Anvil, Forge, Cast)
+- **MegaETH operations**: Check balances and request tokens from faucet
+- **Foundry integration**: Seamless integration with Foundry tools (Anvil, Forge, Cast, Chisel)
 
 ## Installation
 
@@ -52,13 +52,15 @@ mega dev
 
 ```bash
 # Create a full-stack project (NextJS + Foundry)
+mega init 
+#or
 mega init [project-name]
 
 # Create a frontend-only project (NextJS + WalletConnect)
-mega init [project-name] --frontend
+mega init --frontend
 
 # Create a Foundry-only project configured for Mega testnet
-mega init [project-name] --foundry
+mega init --foundry
 ```
 
 ### Development Environment
@@ -100,13 +102,17 @@ mega balance --account <name>
 mega compile
 
 # Deploy a contract
-mega deploy <contract>
+mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --account <keystore-account-name>
+#or, with private keys
+mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --private-key <private-key>
+
+
 
 # Deploy to local network instead of testnet
-mega deploy <contract> --local
+mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast 
 
 # Verify a contract on block explorer
-mega verify <address> <contract>
+mega verify  <contract address> --watch --etherscan-api-key <your-etherscan-api-key> <path-to-contract>/<contract-file-name>.sol:<contract-name>
 ```
 
 ### Network Operations (WIP)
@@ -138,14 +144,21 @@ When you create a new project with `mega init`, it will generate a project with 
 
 ```
 my-mega-project/
-├── foundry/             # Smart contract development
-│   ├── foundry.toml     # Foundry configuration
-│   ├── src/             # Contract source files
-│   └── test/            # Contract test files
-├── next-app/            # Frontend application
-│   ├── package.json
-│   ├── pages/
-│   └── public/
+├── foundry-app/            # Smart contract development
+│   ├── lib/                # Dependencies including forge-std
+│   ├── script/             # Deployment scripts
+│   ├── src/                # Contract source files
+│   ├── test/               # Contract test files
+│   └── foundry.toml        # Foundry configuration
+├── next-app/               # Frontend application
+│   ├── public/             # Static assets
+│   └── src/
+│       ├── app/            # Next.js app router
+│       │   └── gmega/      # Demo application routes
+│       ├── components/     # Reusable components
+│       ├── config/         # Application configuration
+│       ├── constants/      # Constants and types
+│       └── context/        # React context providers
 └── README.md
 ```
 
@@ -153,20 +166,26 @@ my-mega-project/
 
 ```
 my-mega-project/
-├── package.json
-├── pages/
-├── public/
-└── README.md
+├── public/                 # Static assets
+├── src/
+│   ├── app/                # Next.js app router
+│   │   └── gmega/          # Demo application routes
+│   ├── components/         # Reusable components
+│   ├── config/             # Application configuration
+│   ├── constants/          # Constants and types
+│   └── context/            # React context providers
+└── package.json
 ```
 
 ### Foundry-Only Project
 
 ```
 my-mega-project/
-├── foundry.toml
-├── src/
-├── test/
-└── README.md
+├── lib/                    # Dependencies including forge-std
+├── script/                 # Deployment scripts
+├── src/                    # Contract source files
+├── test/                   # Contract test files
+└── foundry.toml            # Foundry configuration
 ```
 
 ## Examples
@@ -174,14 +193,13 @@ my-mega-project/
 ### Deploying a Contract
 
 ```bash
-# Compile your contract
+# Compile your contracts
 mega compile
 
 # Deploy to Mega testnet
-mega deploy src/MyContract.sol
+mega deploy foundry-app/src/GmegaCounter.sol:GmegaCounter --broadcast --testnet --account dev
 
-# Deploy with constructor arguments
-mega deploy src/MyContract.sol --constructor-args "Mega Token" "MEGA" 1000000000000000000000000
+
 ```
 
 ### Creating and Using Accounts
@@ -192,7 +210,7 @@ mega account create
 # > Enter a name for your wallet: myaccount
 
 # Use this account to deploy a contract
-mega deploy src/MyContract.sol --account myaccount
+mega deploy foundry-app/src/GmegaCounter.sol:GmegaCounter --broadcast
 ```
 
 ## Contributing
