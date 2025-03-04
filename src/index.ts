@@ -33,7 +33,13 @@ initCommand(program)
 // Default command when no arguments provided
 program.action(() => {
   console.log(`
-${chalk.blue('Mega CLI v0.1.0')}
+${chalk.blue('███╗   ███╗███████╗ ██████╗  █████╗      ██████╗██╗     ██╗')}
+${chalk.blue('████╗ ████║██╔════╝██╔════╝ ██╔══██╗    ██╔════╝██║     ██║')}
+${chalk.blue('██╔████╔██║█████╗  ██║  ███╗███████║    ██║     ██║     ██║')}
+${chalk.blue('██║╚██╔╝██║██╔══╝  ██║   ██║██╔══██║    ██║     ██║     ██║')}
+${chalk.blue('██║ ╚═╝ ██║███████╗╚██████╔╝██║  ██║    ╚██████╗███████╗██║')}
+${chalk.blue('╚═╝     ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═════╝╚══════╝╚═╝')}
+                                                               ${chalk.gray(`v${require('../package.json').version}`)}
 A complete development environment for MegaETH
 
 ${chalk.yellow('Available commands:')}
