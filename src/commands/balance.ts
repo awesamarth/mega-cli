@@ -19,8 +19,8 @@ export default function balanceCommand(program: Command) {
           return;
         }
 
-        // Hardcode the Sepolia RPC URL
-        const rpcUrl = 'https://1rpc.io/sepolia';
+        
+        const rpcUrl = 'https://carrot.megaeth.com/rpc';
         let targetAddress = address;
 
         // If using a keystore account
@@ -52,7 +52,7 @@ export default function balanceCommand(program: Command) {
         }
 
         console.log(`${chalk.blue('Checking balance for:')} ${targetAddress}`);
-        console.log(`${chalk.gray('Network:')} Mega Testnet (Sepolia)`);
+        console.log(`${chalk.gray('Network:')} Mega Testnet`);
         
         // Construct the balance command
         let balanceCommand = `cast balance ${targetAddress} --rpc-url ${rpcUrl}`;

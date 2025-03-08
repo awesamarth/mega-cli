@@ -52,7 +52,7 @@ export default function deployCommand(program: Command) {
 
         // Set RPC URL based on --testnet flag (local is now default)
         const rpcUrl = options.testnet 
-          ? 'https://1rpc.io/sepolia'
+          ? 'https://carrot.megaeth.com/rpc'
           : 'http://localhost:8545';
         
         console.log(`${chalk.blue('Deploying to:')} ${options.testnet ? 'Mega Testnet' : 'Local Network'}`);

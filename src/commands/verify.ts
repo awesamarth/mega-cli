@@ -5,7 +5,7 @@ import { execSync } from 'child_process';
 export default function verifyCommand(program: Command) {
   program
     .command('verify <address> <contract>')
-    .description('Verify a smart contract on Mega testnet (Sepolia)')
+    .description('Verify a smart contract on Mega testnet')
     // Verify Contract Options
     .option('--verifier <name>', 'The verification provider (etherscan, sourcify, blockscout)', 'etherscan')
     .option('--verifier-url <url>', 'The optional verifier url for submitting the verification request')
@@ -45,12 +45,12 @@ export default function verifyCommand(program: Command) {
           return;
         }
 
-        console.log(`${chalk.blue('Verifying contract on Mega testnet (Sepolia)...')}`);
+        console.log(`${chalk.blue('Verifying contract on Mega testnet...')}`);
         console.log(`${chalk.gray('Contract address:')} ${address}`);
         console.log(`${chalk.gray('Contract:')} ${contract}`);
         
         // Build forge verify-contract command
-        let forgeCommand = `forge verify-contract ${address} ${contract} --chain 11155111`;
+        let forgeCommand = `forge verify-contract ${address} ${contract} --chain 6342`;
         
         // Process all options and map them to the forge command
         Object.entries(options).forEach(([key, value]) => {
