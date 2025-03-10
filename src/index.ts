@@ -22,7 +22,7 @@ compileCommand(program)
 accountCommands(program)
 balanceCommand(program);
 deployCommand(program);
-verifyCommand(program);
+// verifyCommand(program);
 devCommand(program)
 dethCommand(program)
 initCommand(program)
@@ -44,14 +44,14 @@ A complete development environment for MegaETH
 
 ${chalk.yellow('Available commands:')}
 
+  ${chalk.green('account')}        Manage accounts and wallets
+  ${chalk.green('balance')}        Check ETH balance for an address or account on MegaETH
+  ${chalk.green('faucet')}         Request test tokens
+  ${chalk.green('setup')}          Check and install dependencies
   ${chalk.green('init')}           Create a new Next.js/Foundry/full-stack project pre-configured for MegaETH 
   ${chalk.green('dev')}            Start development environments
-  ${chalk.green('account')}        Manage accounts and wallets
-  ${chalk.green('faucet')}         Request test tokens
   ${chalk.green('compile')}        Compile contracts
   ${chalk.green('deploy')}         Deploy contracts to Mega testnet
-  ${chalk.green('verify')}         Verify contracts on block explorer
-  ${chalk.green('setup')}          Check and install dependencies
 
 Run ${chalk.green('mega --help')} for detailed usage information.
 `);
