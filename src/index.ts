@@ -9,20 +9,23 @@ import verifyCommand from './commands/verify';
 import devCommand from './commands/dev';
 import dethCommand from './commands/deth';
 import initCommand from './commands/init';
+import fluffleCommand from './commands/fluffle';
+import faucetCommand from './commands/faucet';
 
 const program = new Command();
 
 // Set version and description
 program
   .version('0.1.0')
-  .description('A complete development environment for MegaETH');
+  .description('A sick CLI tool for MegaETH users and devs');
 
 setupCommand(program);
 compileCommand(program)
 accountCommands(program)
 balanceCommand(program);
 deployCommand(program);
-// verifyCommand(program);
+fluffleCommand(program)
+faucetCommand(program)
 devCommand(program)
 dethCommand(program)
 initCommand(program)
@@ -40,14 +43,15 @@ ${chalk.blue('██║╚██╔╝██║██╔══╝  ██║   �
 ${chalk.blue('██║ ╚═╝ ██║███████╗╚██████╔╝██║  ██║    ╚██████╗███████╗██║')}
 ${chalk.blue('╚═╝     ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═════╝╚══════╝╚═╝')}
                                                                ${chalk.gray(`v${require('../package.json').version}`)}
-A complete development environment for MegaETH
+A sick CLI tool for MegaETH users and devs
 
 ${chalk.yellow('Available commands:')}
 
+  ${chalk.green('setup')}          Check and install dependencies
   ${chalk.green('account')}        Manage accounts and wallets
   ${chalk.green('balance')}        Check ETH balance for an address or account on MegaETH
-  ${chalk.green('faucet')}         Request test tokens
-  ${chalk.green('setup')}          Check and install dependencies
+  ${chalk.green('faucet')}         Request test tokens on MegaETH
+  ${chalk.green('fluffle')}        Explore the MegaETH ecosystem and have fun with Fluffles
   ${chalk.green('init')}           Create a new Next.js/Foundry/full-stack project pre-configured for MegaETH 
   ${chalk.green('dev')}            Start development environments
   ${chalk.green('compile')}        Compile contracts
