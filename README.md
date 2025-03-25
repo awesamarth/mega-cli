@@ -106,20 +106,20 @@ mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadc
 #or, with private keys
 mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --private-key <private-key>
 
-
-
 # Deploy to local network instead of testnet
 mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast 
 
 # Verify a contract on block explorer
-mega verify  <contract address> --watch --etherscan-api-key <your-etherscan-api-key> <path-to-contract>/<contract-file-name>.sol:<contract-name>
+mega verify <contract address> --watch --etherscan-api-key <your-etherscan-api-key> <path-to-contract>/<contract-file-name>.sol:<contract-name>
 ```
 
-### Network Operations (WIP)
+### Network Operations
 
 ```bash
 # Request test tokens from faucet
-mega faucet <address>
+mega faucet --account <name>
+# or
+mega faucet --private-key <key>
 ```
 
 ### Utility Commands
@@ -130,6 +130,9 @@ mega setup
 
 # Check if dependencies are installed
 mega setup --check
+
+#Explore the MegaETH ecosystem (opens Fluffle Tools in browser)
+mega fluffle
 ```
 
 ## Configuration
@@ -198,8 +201,6 @@ mega compile
 
 # Deploy to Mega testnet
 mega deploy foundry-app/src/GmegaCounter.sol:GmegaCounter --broadcast --testnet --account dev
-
-
 ```
 
 ### Creating and Using Accounts
@@ -211,6 +212,16 @@ mega account create
 
 # Use this account to deploy a contract
 mega deploy foundry-app/src/GmegaCounter.sol:GmegaCounter --broadcast
+```
+
+### Getting Testnet Tokens
+
+```bash
+# Request test tokens using a saved account
+mega faucet --account myaccount
+
+# Or using a private key directly
+mega faucet --private-key <your-private-key>
 ```
 
 ## Contributing
