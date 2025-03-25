@@ -10,7 +10,7 @@ A complete development environment for the Mega blockchain. This CLI streamlines
 - **Project templating**: Create boilerplate projects for smart contract, frontend, or full-stack development
 - **Development environment**: Easily start local blockchain or frontend development servers
 - **Account management**: Create, import, and manage blockchain accounts
-- **Smart contract operations**: Compile, deploy, and verify contracts on Mega testnet
+- **Smart contract operations**: Compile and deploy contracts on Mega testnet
 - **MegaETH operations**: Check balances and request tokens from faucet
 - **Foundry**: Many Mega CLI commands are wrappers around Foundry (Anvil, Forge, Cast, Chisel) commands 
 
@@ -109,9 +109,6 @@ mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadc
 # Deploy to local network instead of testnet
 mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast 
 
-# Verify a contract on block explorer
-mega verify <contract address> --watch --etherscan-api-key <your-etherscan-api-key> <path-to-contract>/<contract-file-name>.sol:<contract-name>
-```
 
 ### Network Operations
 
