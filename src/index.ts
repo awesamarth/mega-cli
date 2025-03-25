@@ -16,7 +16,7 @@ const program = new Command();
 
 // Set version and description
 program
-  .version('0.1.0')
+  .version('0.6.0')
   .description('A sick CLI tool for MegaETH users and devs');
 
 setupCommand(program);
