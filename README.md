@@ -1,6 +1,6 @@
 # Mega CLI
 
-A complete development environment for the Mega blockchain. This CLI streamlines the development workflow for smart contract developers, frontend developers, and full-stack developers working with the Mega testnet.
+A sick CLI tool for MegaETH users and devs. This CLI streamlines the development workflow for smart contract developers, frontend developers, and full-stack developers working with the Mega testnet.
 
 [![NPM Version](https://img.shields.io/npm/v/megaeth-cli.svg)](https://www.npmjs.com/package/megaeth-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
