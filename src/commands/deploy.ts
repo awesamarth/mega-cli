@@ -69,10 +69,12 @@ export default function deployCommand(program: Command) {
                                  options.interactive;
           
           // If no wallet option is provided, use the default Anvil private key
-          if (!hasWalletOption && options.broadcast) {
+          if (!hasWalletOption) {
             options.privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
             console.log(`${chalk.gray('Using the first account provided by Anvil')}`);
+
           }
+
         }
         
         // Build forge create command

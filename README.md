@@ -1,18 +1,18 @@
 # Mega CLI
 
-A sick CLI tool for MegaETH users and devs. This CLI streamlines the development workflow for smart contract developers, frontend developers, and full-stack developers working with the Mega testnet.
+A sick CLI tool for MegaETH devs and users. This CLI streamlines the development workflow for smart contract developers, frontend developers, full-stack developers and users working with the Mega testnet.
 
 [![NPM Version](https://img.shields.io/npm/v/megaeth-cli.svg)](https://www.npmjs.com/package/megaeth-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
 
-- **Project templating**: Create boilerplate projects for smart contract, frontend, or full-stack development
-- **Development environment**: Easily start local blockchain or frontend development servers
 - **Account management**: Create, import, and manage blockchain accounts
-- **Smart contract operations**: Compile and deploy contracts on Mega testnet
 - **MegaETH operations**: Check balances and request tokens from faucet
-- **Foundry**: Many Mega CLI commands are wrappers around Foundry (Anvil, Forge, Cast, Chisel) commands 
+- **Project templating**: Create boilerplate projects for smart contract, frontend, or full-stack development
+- **Development environment**: Easily start local blockchain and/or frontend development servers
+- **Smart contract operations**: Compile and deploy contracts on Mega testnet
+- **Foundry**: Most Mega CLI commands are wrappers around Foundry (Anvil, Forge, Cast, Chisel) commands 
 
 ## Installation
 
@@ -27,13 +27,31 @@ yarn global add megaeth-cli
 pnpm add -g megaeth-cli
 ```
 
-### Dependencies
+### Setup
 
 Mega CLI requires [Foundry](https://book.getfoundry.sh/) for smart contract development functionality. You can install it by running:
 
 ```bash
+# Check and set up dependencies
 mega setup
+
+# Check if dependencies are installed
+mega setup --check
 ```
+
+### Recommended: Set Up a Local Account
+For the optimal experience with MegaETH CLI, it is recommended to set up a local account:
+
+```bash
+# Create a new account
+mega account create
+# > Name your account (e.g., "dev")
+# > Enter a password
+
+# Check your account was created successfully
+mega account list
+```
+
 
 ## Quick Start
 
@@ -48,7 +66,47 @@ mega dev
 
 ## Command Reference
 
-### Project Creation
+### Account Management
+
+```bash
+# Create a new account/wallet
+mega account create
+
+# Import an existing account
+mega account import
+
+# List all managed accounts
+mega account list
+```
+
+### Balance Checking
+
+```bash
+# Check ETH balance for address (in wei)
+mega balance [address]
+
+# Check ETH balance for a stored account (in wei)
+mega balance --account <name>
+
+# Check ETH balance for address (in ether)
+mega balance [address] --ether
+
+# Check ETH balance for a stored account (in wei)
+mega balance --account <name>
+```
+
+
+### Faucet
+
+```bash
+# Request test tokens from faucet
+mega faucet --account <name>
+# or
+mega faucet --private-key <key>
+```
+ 
+
+### Spin up Boilerplate Templates
 
 ```bash
 # Create a full-stack project (NextJS + Foundry)
@@ -59,7 +117,7 @@ mega init [project-name]
 # Create a frontend-only project (NextJS + WalletConnect)
 mega init --frontend
 
-# Create a Foundry-only project configured for Mega testnet
+# Create a Foundry-only project. Same as forge init.
 mega init --foundry
 ```
 
@@ -72,28 +130,11 @@ mega dev
 # Start just the NextJS app
 mega dev --frontend
 
-# Start just the Foundry/Anvil local chain
+# Start just the Foundry local chain (Anvil)
 mega dev --foundry
 ```
 
-### Account Management
 
-```bash
-# Create a new account/wallet
-mega account create
-
-# Import an existing account
-mega account import
-
-# List all managed accounts
-mega account list
-
-# Check ETH balance for address
-mega balance [address]
-
-# Check ETH balance for a stored account
-mega balance --account <name>
-```
 
 ### Contract Development
 
@@ -101,40 +142,28 @@ mega balance --account <name>
 # Compile Solidity contracts
 mega compile
 
-# Deploy a contract
-mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --account <keystore-account-name>
-#or, with private keys
-mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --private-key <private-key>
-
-# Deploy to local network instead of testnet
+# Deploy to local network
 mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast 
 
 
-### Network Operations
-
-```bash
-# Request test tokens from faucet
-mega faucet --account <name>
-# or
-mega faucet --private-key <key>
+# Deploy a contract to MegaETH testnet
+mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --account <keystore-account-name>
+# or, with private keys 
+mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --private-key <private-key>
 ```
 
-### Utility Commands
+
+
+### Explore
 
 ```bash
-# Check and set up dependencies
-mega setup
-
-# Check if dependencies are installed
-mega setup --check
-
 #Explore the MegaETH ecosystem (opens Fluffle Tools in browser)
 mega fluffle
 ```
 
 ## Configuration
 
-Mega CLI leverages Foundry's existing configuration system. For Foundry-specific settings, refer to the [Foundry Book](https://book.getfoundry.sh/).
+Mega CLI uses Foundry's existing configuration system. For Foundry-specific settings, refer to the [Foundry Book](https://book.getfoundry.sh/).
 
 ## Project Structure
 
@@ -196,7 +225,7 @@ my-mega-project/
 # Compile your contracts
 mega compile
 
-# Deploy to Mega testnet
+# Deploy to Mega testnet using a locally stored account named "dev"
 mega deploy foundry-app/src/GmegaCounter.sol:GmegaCounter --broadcast --testnet --account dev
 ```
 
