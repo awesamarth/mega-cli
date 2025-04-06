@@ -29,7 +29,7 @@ pnpm add -g megaeth-cli
 
 ### Setup
 
-Mega CLI requires [Foundry](https://book.getfoundry.sh/) for smart contract development functionality. You can install it by running:
+Mega CLI requires [Foundry](https://book.getfoundry.sh/) for most of its commands. You can install it by running:
 
 ```bash
 # Check and set up dependencies
@@ -117,7 +117,7 @@ mega init [project-name]
 # Create a frontend-only project (NextJS + WalletConnect)
 mega init --frontend
 
-# Create a Foundry-only project. Same as forge init.
+# Create a Foundry-only project. Almost identical to forge init.
 mega init --foundry
 ```
 
