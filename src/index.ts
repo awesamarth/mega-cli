@@ -17,7 +17,7 @@ const program = new Command();
 // Set version and description
 program
   .version(require('../package.json').version)
-  .description('A sick CLI tool for MegaETH users and devs');
+  .description('A sick CLI tool for MegaETH devs and users');
 
 setupCommand(program);
 compileCommand(program)
@@ -43,7 +43,7 @@ ${chalk.blue('██║╚██╔╝██║██╔══╝  ██║   �
 ${chalk.blue('██║ ╚═╝ ██║███████╗╚██████╔╝██║  ██║    ╚██████╗███████╗██║')}
 ${chalk.blue('╚═╝     ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝     ╚═════╝╚══════╝╚═╝')}
                                                                ${chalk.gray(`v${require('../package.json').version}`)}
-A sick CLI tool for MegaETH users and devs
+A sick CLI tool for MegaETH devs and users
 
 ${chalk.yellow('Available commands:')}
 

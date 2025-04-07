@@ -14,6 +14,10 @@ A sick CLI tool for MegaETH devs and users. This CLI streamlines the development
 - **Smart contract operations**: Compile and deploy contracts on Mega testnet
 - **Foundry**: Most Mega CLI commands are wrappers around Foundry (Anvil, Forge, Cast, Chisel) commands 
 
+## Documentation
+
+Full documentation available at [mega-cli.mintlify.app](https://mega-cli.mintlify.app)
+
 ## Installation
 
 ```bash
@@ -185,8 +189,8 @@ my-mega-project/
 │       ├── app/            # Next.js app router
 │       │   └── gmega/      # Demo application routes
 │       ├── components/     # Reusable components
-│       ├── config/         # Application configuration
-│       ├── constants/      # Constants and types
+│       ├── config/         # Reown configuration
+│       ├── constants/      # Constants
 │       └── context/        # React context providers
 └── README.md
 ```
@@ -200,8 +204,8 @@ my-mega-project/
 │   ├── app/                # Next.js app router
 │   │   └── gmega/          # Demo application routes
 │   ├── components/         # Reusable components
-│   ├── config/             # Application configuration
-│   ├── constants/          # Constants and types
+│   ├── config/             # Reown configuration
+│   ├── constants/          # Constants
 │   └── context/            # React context providers
 └── package.json
 ```
