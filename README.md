@@ -44,7 +44,7 @@ mega setup --check
 ```
 
 ### Recommended: Set Up a Local Account
-For the optimal experience with MegaETH CLI, it is recommended to set up a local account:
+For the optimal experience with Mega CLI, it is recommended to set up a local account:
 
 ```bash
 # Create a new account
