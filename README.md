@@ -2,6 +2,8 @@
 
 A sick CLI tool for MegaETH devs and users. This CLI streamlines the development workflow for smart contract developers, frontend developers, full-stack developers and users working with the Mega testnet.
 
+![MEGA CLI interface showing available commands](https://raw.githubusercontent.com/awesamarth/mega-cli/refs/heads/main/assets/screenshot.png)
+
 [![NPM Version](https://img.shields.io/npm/v/megaeth-cli.svg)](https://www.npmjs.com/package/megaeth-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
