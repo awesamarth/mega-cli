@@ -18,7 +18,7 @@ export default function faucetCommand(program: Command) {
                 console.log('\nExample:');
                 console.log(`  ${chalk.gray('mega faucet --account dev')}`);
                 return;
-              }
+            }
             try {
                 // Check if Foundry is installed
                 try {
@@ -29,16 +29,14 @@ export default function faucetCommand(program: Command) {
                     return;
                 }
 
-                // Ensure we have authentication method
                 if (!options.account && !options.privateKey) {
                     console.error(chalk.red('Error: You must provide either --account or --private-key'));
                     console.log(`Example: ${chalk.green('mega faucet --account my-account')} or ${chalk.green('mega faucet --private-key <key>')}`);
                     return;
                 }
 
-                // The faucet contract details
-                const faucetContract = '0x22988D807e4487B38e7632F3bb21f2383C3CC6B2';
-                const faucetFunction = '0x61ed4648';
+                const faucetContract = '0xaF5AA075cb327d83cB8D565D95202494569517a9';
+                const faucetFunction = '0xb026ba57'; 
                 const rpcUrl = 'https://carrot.megaeth.com/rpc';
 
                 // Get the address for checking eligibility
@@ -76,47 +74,61 @@ export default function faucetCommand(program: Command) {
                     return;
                 }
 
-                // First, simulate the call to check eligibility
+                // First, check if we're eligible by reading the lastWithdrawalOfUser mapping
                 console.log(chalk.blue('Checking if address is eligible for faucet...'));
                 try {
-                    execSync(`cast call ${faucetContract} "${faucetFunction}" --from ${addressForCheck} --rpc-url ${rpcUrl}`,
-                        { stdio: 'ignore' });
+                    // Get the last withdrawal timestamp
+                    const lastWithdrawalCmd = `cast call ${faucetContract} "lastWithdrawalOfUser(address)(uint256)" ${addressForCheck} --rpc-url ${rpcUrl}`;
+                    const lastWithdrawal = execSync(lastWithdrawalCmd, { encoding: 'utf8' }).trim();
 
-                    // If we get here, the simulation succeeded
+                    // Convert to a number
+                    const lastWithdrawalTime = parseInt(lastWithdrawal, 16);
+
+                    // Check if 24 hours have passed
+                    const currentTime = Math.floor(Date.now() / 1000);
+                    if (lastWithdrawalTime > 0 && currentTime < lastWithdrawalTime + 24 * 60 * 60) {
+                        // Calculate time remaining
+
+                        console.error(chalk.yellow('You can only claim funds from the faucet once every 24 hours'));
+                        console.error(chalk.yellow('Please try again later'));
+                        return;
+                    }
+
+                    // Also check if the faucet has enough funds
+                    const balanceCmd = `cast call ${faucetContract} "getBalanceOfFaucet()(uint256)" --rpc-url ${rpcUrl}`;
+                    const faucetBalance = execSync(balanceCmd, { encoding: 'utf8' }).trim();
+
+                    // The DRIP_AMOUNT is 0.001 ether (10^15 wei)
+                    const minBalance = BigInt('1000000000000000');
+
+                    if (BigInt(faucetBalance) < minBalance) {
+                        console.error(chalk.yellow('The faucet is currently out of funds :('));
+                        console.error(chalk.yellow('Please try again later'));
+                        return;
+                    }
+
                     console.log(chalk.green('Address is eligible for faucet claim!'));
                 } catch (error) {
-                    //@ts-ignore
-                    const errorMsg = error.toString();
-                    if (errorMsg.includes('Not allowed to withdraw yet')) {
-                        console.error(chalk.yellow('You have already claimed from the faucet recently.'));
-                        console.error(chalk.yellow('Please wait 24 hours between claims.'));
-                    } else {
-                        console.error(chalk.red('Error checking eligibility:'));
-                        console.error(errorMsg);
-                    }
+                    console.error(chalk.red('Error checking eligibility:'));
+                    console.error(error instanceof Error ? error.message : String(error));
                     return;
                 }
+                console.log(chalk.blue('Claiming 0.001 ETH from faucet...'));
 
-                // Now send the actual transaction
-                console.log(chalk.blue('Claiming 0.00001 ETH from faucet...'));
+                let sendCommand = `cast send ${faucetContract} "${faucetFunction}" --rpc-url ${rpcUrl} --gas-limit 100000 --json`;
 
-                let sendCommand = `cast send ${faucetContract} "${faucetFunction}" --rpc-url ${rpcUrl} --gas-limit 94960 --json`;
-
-                // Add auth options based on what was provided
                 if (options.privateKey) {
                     sendCommand += ` --private-key ${options.privateKey}`;
                 } else if (options.account) {
                     sendCommand += ` --account ${options.account}`;
                 }
 
-                // Execute the transaction
                 try {
                     const result = execSync(sendCommand, { encoding: 'utf8' });
                     const txData = JSON.parse(result);
                     console.log(chalk.green('Faucet claim successful!'));
                     console.log(chalk.cyan('Transaction hash:'), txData.transactionHash);
 
-                    // Check the new balance after a brief delay
                     console.log(chalk.blue('Waiting for transaction to be mined...'));
                     setTimeout(() => {
                         try {
