@@ -98,10 +98,19 @@ export default function faucetCommand(program: Command) {
                     const balanceCmd = `cast call ${faucetContract} "getBalanceOfFaucet()(uint256)" --rpc-url ${rpcUrl}`;
                     const faucetBalance = execSync(balanceCmd, { encoding: 'utf8' }).trim();
 
+                   
+
+
+
                     // The DRIP_AMOUNT is 0.001 ether (10^15 wei)
                     const minBalance = BigInt('1000000000000000');
 
-                    if (BigInt(faucetBalance) < minBalance) {
+                    const numericPart = faucetBalance.split(' ')[0];
+                    console.log(`Numeric part: "${numericPart}"`);
+
+                    
+
+                    if (BigInt(numericPart) < minBalance) {
                         console.error(chalk.yellow('The faucet is currently out of funds :('));
                         console.error(chalk.yellow('Please try again later'));
                         return;
@@ -144,6 +153,7 @@ export default function faucetCommand(program: Command) {
                     }, 15);
                 } catch (error: unknown) {
                     console.error(chalk.red('Error sending transaction:'));
+                    //@ts-ignore
                     console.error(error instanceof Error ? error.message : String(error));
                 }
 
