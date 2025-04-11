@@ -1,13 +1,14 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
+import inquirer from 'inquirer';
 
 export default function faucetCommand(program: Command) {
     program
         .command('faucet')
         .description('Request test tokens from the MegaETH testnet faucet')
         .option('--account <name>', 'Use a keystore account from the default keystores folder')
-        .option('--private-key <key>', 'Use the provided private key')
+        .option('--private-key <key>', 'Use the provided private key directly')
         .action(async (options) => {
             if (!options.account && !options.privateKey) {
                 console.log(chalk.blue('MegaETH Testnet Faucet'));
@@ -19,6 +20,7 @@ export default function faucetCommand(program: Command) {
                 console.log(`  ${chalk.gray('mega faucet --account dev')}`);
                 return;
             }
+
             try {
                 // Check if Foundry is installed
                 try {
@@ -29,134 +31,140 @@ export default function faucetCommand(program: Command) {
                     return;
                 }
 
-                if (!options.account && !options.privateKey) {
-                    console.error(chalk.red('Error: You must provide either --account or --private-key'));
-                    console.log(`Example: ${chalk.green('mega faucet --account my-account')} or ${chalk.green('mega faucet --private-key <key>')}`);
-                    return;
-                }
-
+                // Faucet contract details
                 const faucetContract = '0xaF5AA075cb327d83cB8D565D95202494569517a9';
                 const faucetFunction = '0xb026ba57'; 
                 const rpcUrl = 'https://carrot.megaeth.com/rpc';
-
-                // Get the address for checking eligibility
-                let addressForCheck: string = ''; // Initialize with empty string
-
+                
+                let privateKey = '';
+                let userAddress = '';
+                
+                // Get private key and address based on options
                 if (options.account) {
-                    console.log(`${chalk.blue('Getting address for account:')} ${options.account}`);
-                    try {
-                        addressForCheck = execSync(
-                            `cast wallet address --account ${options.account}`,
-                            { encoding: 'utf8' }
-                        ).trim();
-                        console.log(`${chalk.green('Account address:')} ${addressForCheck}`);
-                    } catch (error) {
-                        console.error(chalk.red('Failed to get address from keystore. Check your account name and password.'));
-                        process.exit(1);
-                    }
+                    console.log(`${chalk.blue('Using account:')} ${options.account}`);
+                    
+
+                        
+                        try {
+                            // Use cast dk to get the private key
+                            const output = execSync(
+                                `cast wallet dk ${options.account}`, 
+                                { encoding: 'utf8' }
+                            ).trim();
+                            const privateKeyMatch = output.match(/0x[a-fA-F0-9]{64}/);
+    
+                            if (!privateKeyMatch) {
+                                console.error(chalk.red('Failed to extract private key from output'));
+                                process.exit(1);
+                            }
+                            
+                            privateKey = privateKeyMatch[0];
+                            console.log(privateKey)
+                            
+                            userAddress = execSync(
+                                `cast wallet address ${privateKey}`, 
+                                { encoding: 'utf8' }
+                            ).trim();
+
+                           
+                            
+                            console.log(`${chalk.green('Using address:')} ${userAddress}`);
+                        } catch (error) {
+                            console.error(chalk.red('Failed to unlock account. Check your account name and password.'));
+                            process.exit(1);
+                        }
+
                 } else if (options.privateKey) {
-                    // Get address from private key without displaying the key
+                    privateKey = options.privateKey;
+                    
                     try {
-                        addressForCheck = execSync(
-                            `cast wallet address --private-key ${options.privateKey}`,
+                        // Get address from private key
+                        userAddress = execSync(
+                            `cast wallet address --private-key ${privateKey}`, 
                             { encoding: 'utf8' }
                         ).trim();
-                        console.log(`${chalk.green('Account address:')} ${addressForCheck}`);
+                        
+                        console.log(`${chalk.green('Using address:')} ${userAddress}`);
                     } catch (error) {
                         console.error(chalk.red('Invalid private key format.'));
                         process.exit(1);
                     }
                 }
-
-                // Ensure we have an address before proceeding
-                if (!addressForCheck) {
-                    console.error(chalk.red('Failed to determine address for faucet request.'));
-                    return;
-                }
-
-                // First, check if we're eligible by reading the lastWithdrawalOfUser mapping
-                console.log(chalk.blue('Checking if address is eligible for faucet...'));
+            
+                
+                // First use cast call to check if the transaction would succeed
+                console.log(chalk.blue('Checking eligibility for faucet claim...'));
+                const callCommand = `cast call ${faucetContract} "${faucetFunction}" --rpc-url ${rpcUrl} --from ${userAddress}`;
+                
                 try {
-                    // Get the last withdrawal timestamp
-                    const lastWithdrawalCmd = `cast call ${faucetContract} "lastWithdrawalOfUser(address)(uint256)" ${addressForCheck} --rpc-url ${rpcUrl}`;
-                    const lastWithdrawal = execSync(lastWithdrawalCmd, { encoding: 'utf8' }).trim();
-
-                    // Convert to a number
-                    const lastWithdrawalTime = parseInt(lastWithdrawal, 16);
-
-                    // Check if 24 hours have passed
-                    const currentTime = Math.floor(Date.now() / 1000);
-                    if (lastWithdrawalTime > 0 && currentTime < lastWithdrawalTime + 24 * 60 * 60) {
-                        // Calculate time remaining
-
-                        console.error(chalk.yellow('You can only claim funds from the faucet once every 24 hours'));
-                        console.error(chalk.yellow('Please try again later'));
-                        return;
-                    }
-
-                    // Also check if the faucet has enough funds
-                    const balanceCmd = `cast call ${faucetContract} "getBalanceOfFaucet()(uint256)" --rpc-url ${rpcUrl}`;
-                    const faucetBalance = execSync(balanceCmd, { encoding: 'utf8' }).trim();
-
-                   
-
-
-
-                    // The DRIP_AMOUNT is 0.001 ether (10^15 wei)
-                    const minBalance = BigInt('1000000000000000');
-
-                    const numericPart = faucetBalance.split(' ')[0];
-                    console.log(`Numeric part: "${numericPart}"`);
-
+                    execSync(callCommand, { encoding: 'utf8', stdio: 'pipe' });
                     
-
-                    if (BigInt(numericPart) < minBalance) {
-                        console.error(chalk.yellow('The faucet is currently out of funds :('));
-                        console.error(chalk.yellow('Please try again later'));
-                        return;
-                    }
-
-                    console.log(chalk.green('Address is eligible for faucet claim!'));
+                    // If we get here, the call succeeded and we can proceed with the actual transaction
+                    console.log(chalk.green('Address is eligible for faucet!'));
                 } catch (error) {
-                    console.error(chalk.red('Error checking eligibility:'));
-                    console.error(error instanceof Error ? error.message : String(error));
+                    // console.log("here is the error message: ", errorMessage)
+                    const errorMsg = error instanceof Error ? error.message : String(error);                    
+                    if (errorMsg.includes('execution reverted')) {
+                        // Extract the error selector using regex
+                        const dataMatch = errorMsg.match(/data: "([^"]+)"/);
+                        const errorSelector = dataMatch ? dataMatch[1] : null;
+                        
+                        if (errorSelector === "0x7f12493d") {
+                            console.error(chalk.red('You have already claimed from the faucet recently.'));
+                            console.error(chalk.yellow('Please wait 24 hours between claims.'));
+                        } else if (errorSelector === "0xc1336f85") {
+                            console.error(chalk.red('The faucet is currently out of funds.'));
+                            console.error(chalk.yellow('Please try again later when the faucet has been refilled.'));
+                        } else if (errorSelector === "0x30cd7471") {
+                            console.error(chalk.red('This function can only be called by the faucet owner.'));
+                        } else {
+                            console.error(chalk.red('You are not eligible to claim from the faucet.'));
+                            console.error(chalk.yellow('Unknown reason:'), errorMsg);
+                        }
+                    } else {
+                        console.error(chalk.red('Error checking eligibility:'));
+                        console.error(errorMsg);
+                    }
                     return;
                 }
+                
+                // Now proceed with the actual transaction
                 console.log(chalk.blue('Claiming 0.001 ETH from faucet...'));
-
-                let sendCommand = `cast send ${faucetContract} "${faucetFunction}" --rpc-url ${rpcUrl} --gas-limit 100000 --json`;
-
-                if (options.privateKey) {
-                    sendCommand += ` --private-key ${options.privateKey}`;
-                } else if (options.account) {
-                    sendCommand += ` --account ${options.account}`;
-                }
-
+                
                 try {
+                    const sendCommand = `cast send ${faucetContract} "${faucetFunction}" --rpc-url ${rpcUrl} --private-key ${privateKey} --gas-limit 100000 --json`;
                     const result = execSync(sendCommand, { encoding: 'utf8' });
                     const txData = JSON.parse(result);
+                    
+                    if (txData.status === '0x0') {
+                        console.log(chalk.red('Error claiming from faucet'));
+                        console.log(chalk.red('Transaction failed on-chain'));
+                        console.log(chalk.red('Transaction hash:'), txData.transactionHash);
+                        return;
+                    }
+                    
                     console.log(chalk.green('Faucet claim successful!'));
                     console.log(chalk.cyan('Transaction hash:'), txData.transactionHash);
-
+                    
+                    // Check new balance after claiming
                     console.log(chalk.blue('Waiting for transaction to be mined...'));
                     setTimeout(() => {
                         try {
-                            const balance = execSync(
-                                `cast balance ${addressForCheck} --rpc-url ${rpcUrl} -e`,
+                            const newBalance = execSync(
+                                `cast balance ${userAddress} --rpc-url ${rpcUrl} -e`, 
                                 { encoding: 'utf8' }
                             ).trim();
-                            console.log(chalk.green(`New balance: ${balance} ETH`));
+                            console.log(chalk.green(`New balance: ${newBalance} ETH`));
                         } catch (error) {
-                            // Just skip balance check if it fails
                             console.log(chalk.yellow('Unable to retrieve updated balance.'));
                         }
-                    }, 15);
-                } catch (error: unknown) {
+                    }, 20); // Giving more time for the transaction to be mined
+                    
+                } catch (error) {
                     console.error(chalk.red('Error sending transaction:'));
-                    //@ts-ignore
                     console.error(error instanceof Error ? error.message : String(error));
                 }
-
+                
             } catch (error) {
                 console.error(`\n${chalk.red('Error using faucet:')}`);
                 if (error instanceof Error) {

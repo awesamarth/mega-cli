@@ -52,7 +52,7 @@ export default function balanceCommand(program: Command) {
         }
 
         console.log(`${chalk.blue('Checking balance for:')} ${targetAddress}`);
-        console.log(`${chalk.gray('Network:')} Mega Testnet`);
+        console.log(`${chalk.gray('Network:')} MegaETH Testnet`);
         
         // Construct the balance command
         let balanceCommand = `cast balance ${targetAddress} --rpc-url ${rpcUrl}`;
