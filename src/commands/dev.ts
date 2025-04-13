@@ -89,8 +89,8 @@ export default function devCommand(program: Command) {
 
                     foundryProcess = spawn('anvil', ['--host', '0.0.0.0'], {
                         stdio: 'pipe',
-                        shell: process.platform === 'win32', // Use shell on Windows
-                        cwd: foundryPath || undefined // Use discovered path or default
+                        shell: process.platform === 'win32',
+                        cwd: foundryPath || undefined 
                     });
 
                     // Handle output to extract and highlight important information
@@ -99,15 +99,13 @@ export default function devCommand(program: Command) {
                             const output = data.toString();
                             process.stdout.write(output);
 
-                            // If this is the first output with private keys, highlight them
                             if (output.includes('Private Keys') && foundryProcess && !foundryProcess.privateKeysShown) {
                                 console.log(chalk.yellow('\n=================================================='));
                                 console.log(chalk.green('✓ Anvil running successfully!'));
                                 console.log(chalk.cyan('You can use these accounts to deploy contracts with:'));
-                                console.log(chalk.cyan('mega deploy <contract> --private-key <KEY>'));
+                                console.log(chalk.cyan('mega deploy <contract>'));
                                 console.log(chalk.yellow('==================================================\n'));
 
-                                // Mark that we've shown the highlight so we don't repeat it
                                 foundryProcess.privateKeysShown = true;
                             }
                         });
@@ -234,7 +232,6 @@ function determinePackageManager(dir: string): string {
     return 'npm';
 }
 
-// Add a custom property to ChildProcess
 declare module 'child_process' {
     interface ChildProcess {
         privateKeysShown?: boolean;

@@ -40,7 +40,8 @@
     "execa": "^9.5.2",
     "fs-extra": "^11.3.0",
     "inquirer": "^12.4.2",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "viem": "^2.26.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
