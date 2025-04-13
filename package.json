@@ -1,6 +1,6 @@
 {
   "name": "megaeth-cli",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "A CLI tool for MegaETH (install globally with -g flag)",
   "bin": {
     "mega": "./bin/mega.js"
