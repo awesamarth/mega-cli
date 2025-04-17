@@ -56,9 +56,22 @@ ${chalk.yellow('Available commands:')}
   ${chalk.green('dev')}            Start development environments
   ${chalk.green('compile')}        Compile contracts
   ${chalk.green('deploy')}         Deploy contracts to Mega testnet
+  
+
+${chalk.yellow('Resources:')}
+${chalk.cyan('Documentation:')}  ${chalk.underline('https://mega-cli.mintlify.app/')}
+${chalk.cyan('Full video walkthrough:')} ${chalk.underline('https://www.youtube.com/watch?v=uLLzEAp9DL4')}
+
 
 Run ${chalk.green('mega --help')} for detailed usage information.
 `);
 });
+
+program.addHelpText('after', `
+  ${chalk.yellow('Resources:')}
+    ${chalk.cyan('Documentation:')}  ${chalk.underline('https://mega-cli.mintlify.app/')}
+    ${chalk.cyan('Command-by-command walkthrough:')} ${chalk.underline('https://www.youtube.com/watch?v=uLLzEAp9DL4')}
+  `);
+  
 
 program.parse(process.argv);

@@ -20,6 +20,12 @@ A sick CLI tool for MegaETH devs and users. This CLI streamlines the development
 
 Full documentation available at [mega-cli.mintlify.app](https://mega-cli.mintlify.app)
 
+## Video Walkthrough
+
+Watch a complete demonstration of all Mega CLI commands and features:
+
+[![Full Video Walkthrough](http://i.ytimg.com/vi/uLLzEAp9DL4/hqdefault.jpg)](https://www.youtube.com/watch?v=uLLzEAp9DL4)
+
 ## Installation
 
 ```bash
