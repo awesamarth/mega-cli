@@ -72,23 +72,21 @@ export default function deployCommand(program: Command) {
           if (!hasWalletOption) {
             options.privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
             console.log(`${chalk.gray('Using the first account provided by Anvil')}`);
-
           }
-
         }
         
         // Build forge create command
         let forgeCommand = `forge create ${contract} --rpc-url ${rpcUrl}`;
         
-        // Add all options to the forge command
-        if (options.constructorArgs) {
-          // Constructor args must be at the end
-          const constructorArgs = options.constructorArgs.join(' ');
-          options.constructorArgs = undefined; // Remove from options to avoid adding twice
-          forgeCommand += ` --constructor-args ${constructorArgs}`;
+        // Extract constructor args before processing other options
+        let constructorArgs = null;
+        if (options.constructorArgs && options.constructorArgs.length > 0) {
+          constructorArgs = options.constructorArgs;
+          // Remove it from options to avoid processing it twice
+          delete options.constructorArgs;
         }
         
-        // Process other options
+        // Process all other options
         Object.entries(options).forEach(([key, value]) => {
           // Skip the testnet flag as we've already handled it
           if (key === 'testnet') return;
@@ -114,6 +112,14 @@ export default function deployCommand(program: Command) {
         if (passthroughArgs.length > 0) {
           forgeCommand += ` ${passthroughArgs.join(' ')}`;
         }
+        
+        // Add constructor args at the end (important for forge)
+        if (constructorArgs) {
+          forgeCommand += ` --constructor-args ${constructorArgs.join(' ')}`;
+        }
+        
+        // Debug: Log the command being executed
+        console.log(`${chalk.gray('Executing:')} ${forgeCommand}`);
         
         // Execute the forge command
         execSync(forgeCommand, { stdio: 'inherit' });
