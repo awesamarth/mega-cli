@@ -119,7 +119,7 @@ export default function deployCommand(program: Command) {
         }
         
         // Debug: Log the command being executed
-        console.log(`${chalk.gray('Executing:')} ${forgeCommand}`);
+        // console.log(`${chalk.gray('Executing:')} ${forgeCommand}`);
         
         // Execute the forge command
         execSync(forgeCommand, { stdio: 'inherit' });
