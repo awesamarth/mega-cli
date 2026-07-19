@@ -24,6 +24,7 @@ compileCommand(program)
 accountCommands(program)
 balanceCommand(program);
 deployCommand(program);
+verifyCommand(program);
 fluffleCommand(program)
 faucetCommand(program)
 devCommand(program)
@@ -49,13 +50,13 @@ ${chalk.yellow('Available commands:')}
 
   ${chalk.green('setup')}          Check and install dependencies
   ${chalk.green('account')}        Manage accounts and wallets
-  ${chalk.green('balance')}        Check ETH balance for an address or account on MegaETH
-  ${chalk.green('faucet')}         Request test tokens on MegaETH
+  ${chalk.green('balance')}        Check ETH balance on local, MegaETH testnet, or mainnet
+  ${chalk.green('faucet')}         Request MegaETH testnet tokens
   ${chalk.green('fluffle')}        Explore the MegaETH ecosystem and have fun with Fluffles
   ${chalk.green('init')}           Create a new Next.js/Foundry/full-stack project pre-configured for MegaETH 
   ${chalk.green('dev')}            Start development environments
   ${chalk.green('compile')}        Compile contracts
-  ${chalk.green('deploy')}         Deploy contracts to Mega testnet
+  ${chalk.green('deploy')}         Deploy contracts locally or to MegaETH testnet/mainnet
   
 
 ${chalk.yellow('Resources:')}

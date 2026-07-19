@@ -1,6 +1,6 @@
 # Mega CLI
 
-A sick CLI tool for MegaETH devs and users. This CLI streamlines the development workflow for smart contract developers, frontend developers, full-stack developers and users working with the Mega testnet.
+A sick CLI tool for MegaETH devs and users. This CLI streamlines local development and interaction with MegaETH testnet and mainnet.
 
 ![MEGA CLI interface showing available commands](https://raw.githubusercontent.com/awesamarth/mega-cli/refs/heads/main/assets/screenshot.png)
 
@@ -13,7 +13,7 @@ A sick CLI tool for MegaETH devs and users. This CLI streamlines the development
 - **MegaETH operations**: Check balances and request tokens from faucet
 - **Project templating**: Create boilerplate projects for smart contract, frontend, or full-stack development
 - **Development environment**: Easily start local blockchain and/or frontend development servers
-- **Smart contract operations**: Compile and deploy contracts on Mega testnet
+- **Smart contract operations**: Compile, deploy, and verify contracts locally or on MegaETH testnet/mainnet
 - **Foundry**: Most Mega CLI commands are wrappers around Foundry (Anvil, Forge, Cast, Chisel) commands 
 
 ## Documentation
@@ -93,18 +93,20 @@ mega account list
 
 ### Balance Checking
 
+The default network is local. Select MegaETH testnet or mainnet with `--network`.
+
 ```bash
-# Check ETH balance for address (in wei)
+# Check a local address balance (in wei)
 mega balance [address]
 
-# Check ETH balance for a stored account (in wei)
-mega balance --account <name>
+# Check a stored account on MegaETH testnet (in ether)
+mega balance --account <name> --network testnet --ether
 
-# Check ETH balance for address (in ether)
-mega balance [address] --ether
+# Check an address on MegaETH mainnet
+mega balance [address] --network mainnet --ether
 
-# Check ETH balance for a stored account (in wei)
-mega balance --account <name>
+# Override the selected network's default RPC
+mega balance [address] --network testnet --rpc-url https://your-rpc.example
 ```
 
 
@@ -154,14 +156,20 @@ mega dev --foundry
 # Compile Solidity contracts
 mega compile
 
-# Deploy to local network
-mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast 
+# Deploy to local network (the default)
+mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast
 
+# Deploy to MegaETH testnet
+mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --network testnet --broadcast --account <keystore-account-name>
 
-# Deploy a contract to MegaETH testnet
-mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --account <keystore-account-name>
-# or, with private keys 
-mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadcast --testnet --private-key <private-key>
+# Deploy to MegaETH mainnet with a private key
+mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --network mainnet --broadcast --private-key <private-key>
+
+# Use a custom RPC for the selected network
+mega deploy <contract> --network testnet --rpc-url https://your-rpc.example --broadcast --account <name>
+
+# Verify a deployed contract
+mega verify <address> <contract> --network testnet
 ```
 
 
@@ -173,9 +181,19 @@ mega deploy <path-to-contract>/<contract-file-name>.sol:<contract-name> --broadc
 mega fluffle
 ```
 
-## Configuration
+## Network Configuration
 
-Mega CLI uses Foundry's existing configuration system. For Foundry-specific settings, refer to the [Foundry Book](https://book.getfoundry.sh/).
+Commands that interact with a chain accept `--network <local|testnet|mainnet>` and default to `local`.
+
+| Network | Chain ID | Default RPC |
+| --- | ---: | --- |
+| `local` | 31337 | `http://127.0.0.1:8545` |
+| `testnet` | 6343 | `https://carrot.megaeth.com/rpc` |
+| `mainnet` | 4326 | `https://mainnet.megaeth.com/rpc` |
+
+Use `--rpc-url <url>` to override the selected network's default RPC. Mega CLI validates that a custom RPC's chain ID matches `--network` before continuing.
+
+Mega CLI uses Foundry's existing configuration system for other Foundry-specific settings. Refer to the [Foundry Book](https://book.getfoundry.sh/).
 
 ## Project Structure
 
@@ -237,8 +255,8 @@ my-mega-project/
 # Compile your contracts
 mega compile
 
-# Deploy to Mega testnet using a locally stored account named "dev"
-mega deploy foundry-app/src/GmegaCounter.sol:GmegaCounter --broadcast --testnet --account dev
+# Deploy to MegaETH testnet using a locally stored account named "dev"
+mega deploy foundry-app/src/GmegaCounter.sol:GmegaCounter --network testnet --broadcast --account dev
 ```
 
 ### Creating and Using Accounts

@@ -50,8 +50,8 @@ export default function faucetCommand(program: Command) {
 
             try {
                 // Faucet contract details
-                const faucetContract = '0xaF5AA075cb327d83cB8D565D95202494569517a9' as `0x${string}`;
-                const rpcUrl = 'https://carrot.megaeth.com/rpc';
+                const faucetContract = '0xa84641aced4c404c58E8350AfD3F75bb183Bf77d' as `0x${string}`;
+                const rpcUrl = megaethTestnet.rpcUrls.default.http[0];
                 
                 let privateKey: `0x${string}`;
                 let account: PrivateKeyAccount;

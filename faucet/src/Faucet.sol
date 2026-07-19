@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-//address is: 0xaF5AA075cb327d83cB8D565D95202494569517a9
+// MegaETH testnet (chain 6343): 0xa84641aced4c404c58E8350AfD3F75bb183Bf77d
 
 contract Faucet {
     error CantWithdrawYet();

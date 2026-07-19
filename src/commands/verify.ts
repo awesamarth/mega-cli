@@ -1,11 +1,18 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
+import { NETWORK_NAMES, resolveNetwork, validateCustomRpc } from '../networks';
 
 export default function verifyCommand(program: Command) {
   program
     .command('verify <address> <contract>')
-    .description('Verify a smart contract on Mega testnet')
+    .description('Verify a smart contract on MegaETH testnet or mainnet')
+    .addOption(
+      new Option('--network <network>', 'Target network')
+        .choices([...NETWORK_NAMES])
+        .default('local'),
+    )
+    .option('-r, --rpc-url <url>', 'Override the selected network RPC URL')
     // Verify Contract Options
     .option('--verifier <name>', 'The verification provider (etherscan, sourcify, blockscout)', 'etherscan')
     .option('--verifier-url <url>', 'The optional verifier url for submitting the verification request')
@@ -33,60 +40,66 @@ export default function verifyCommand(program: Command) {
     .option('--cache-path <path>', 'The path to the compiler cache')
     .option('--config-path <file>', 'Path to the config file')
     .option('--hh, --hardhat', 'Use Hardhat-style paths')
-    .allowUnknownOption(true) // Pass through other options to forge
+    .allowUnknownOption(true)
+    .allowExcessArguments(true)
     .action(async (address, contract, options, command) => {
       try {
-        // Check if Foundry is installed
-        try {
-          execSync('forge --version', { stdio: 'ignore' });
-        } catch (error) {
-          console.error(`${chalk.red('Error:')} Foundry is not installed.`);
-          console.log(`Run ${chalk.green('mega setup')} to install Foundry.`);
-          return;
-        }
+        execSync('forge --version', { stdio: 'ignore' });
+      } catch {
+        console.error(`${chalk.red('Error:')} Foundry is not installed.`);
+        console.log(`Run ${chalk.green('mega setup')} to install Foundry.`);
+        return;
+      }
 
-        console.log(`${chalk.blue('Verifying contract on Mega testnet...')}`);
-        console.log(`${chalk.gray('Contract address:')} ${address}`);
-        console.log(`${chalk.gray('Contract:')} ${contract}`);
-        
-        // Build forge verify-contract command
-        let forgeCommand = `forge verify-contract ${address} ${contract} --chain 6342`;
-        
-        // Process all options and map them to the forge command
-        Object.entries(options).forEach(([key, value]) => {
-          // Skip undefined values
-          if (value === undefined) return;
-          
-          // Format the flag
-          const flag = key.length === 1 ? `-${key}` : `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-          
-          // Add the flag to the command
-          if (typeof value === 'boolean') {
-            if (value) forgeCommand += ` ${flag}`;
-          } else if (Array.isArray(value)) {
-            forgeCommand += ` ${flag} ${value.join(' ')}`;
-          } else {
-            forgeCommand += ` ${flag} ${value}`;
-          }
-        });
-        
-        // Get any passthrough args
-        const passthroughArgs = command.args.slice(2); // Skip address and contract
-        if (passthroughArgs.length > 0) {
-          forgeCommand += ` ${passthroughArgs.join(' ')}`;
+      let network;
+      try {
+        network = resolveNetwork(options.network, options.rpcUrl);
+        if (network.name === 'local') {
+          throw new Error('Local contracts cannot be explorer-verified. Use --network testnet or --network mainnet.');
         }
-        
-        
-        // Execute the forge command
-        execSync(forgeCommand, { stdio: 'inherit' });
-        
-        console.log(`${chalk.green('✓')} Verification process completed!`);
-        
+        await validateCustomRpc(network);
       } catch (error) {
-        // Forge will already show detailed errors, so we just handle the exception
-        if (error instanceof Error && error.message) {
-          console.error(`\n${chalk.red('Verification failed. See above for details.')}`);
+        console.error(`${chalk.red('Network error:')} ${error instanceof Error ? error.message : String(error)}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      console.log(`${chalk.blue('Verifying contract on:')} ${network.chain.name} (chain ${network.chain.id})`);
+      console.log(`${chalk.gray('Contract address:')} ${address}`);
+      console.log(`${chalk.gray('Contract:')} ${contract}`);
+
+      const forgeArgs = [
+        'verify-contract',
+        address,
+        contract,
+        '--chain',
+        String(network.chain.id),
+        '--rpc-url',
+        network.rpcUrl,
+      ];
+
+      for (const [key, value] of Object.entries(options)) {
+        if (['network', 'rpcUrl'].includes(key) || value === undefined) continue;
+
+        const flag = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+
+        if (typeof value === 'boolean') {
+          if (value) forgeArgs.push(flag);
+        } else if (Array.isArray(value)) {
+          forgeArgs.push(flag, ...value.map(String));
+        } else {
+          forgeArgs.push(flag, String(value));
         }
+      }
+
+      const passthroughArgs = command.args.slice(2);
+      if (passthroughArgs.length > 0) forgeArgs.push(...passthroughArgs);
+
+      try {
+        execFileSync('forge', forgeArgs, { stdio: 'inherit' });
+        console.log(`${chalk.green('✓')} Verification process completed!`);
+      } catch {
+        console.error(`\n${chalk.red('Verification failed. See above for details.')}`);
         process.exit(1);
       }
     });

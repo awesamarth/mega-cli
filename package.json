@@ -41,12 +41,12 @@
     "fs-extra": "^11.3.0",
     "inquirer": "^12.4.2",
     "path": "^0.12.7",
-    "viem": "^2.26.3"
+    "viem": "^2.55.2"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.13.8",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "typescript": "^5.9.3"
   }
 }

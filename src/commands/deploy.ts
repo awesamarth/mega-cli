@@ -1,13 +1,19 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
+import { NETWORK_NAMES, resolveNetwork, validateCustomRpc } from '../networks';
 
 export default function deployCommand(program: Command) {
   program
     .command('deploy <contract>')
     .alias('create')
-    .description('Deploy a smart contract to local network or Mega testnet')
-    .option('--testnet', 'Deploy to Mega testnet instead of local network')
+    .description('Deploy a smart contract to local, MegaETH testnet, or MegaETH mainnet')
+    .addOption(
+      new Option('--network <network>', 'Target network')
+        .choices([...NETWORK_NAMES])
+        .default('local'),
+    )
+    .option('-r, --rpc-url <url>', 'Override the selected network RPC URL')
     .option('--broadcast', 'Broadcast the transaction instead of doing a dry run')
 
     // Build Options
@@ -38,97 +44,73 @@ export default function deployCommand(program: Command) {
     // Other common Forge options
     .option('--libraries <libraries>', 'Set pre-linked libraries')
     .option('-j, --json', 'Print the deployment information as JSON')
-    .allowUnknownOption(true) // Allow passthrough of other forge create options
+    .allowUnknownOption(true)
+    .allowExcessArguments(true)
     .action(async (contract, options, command) => {
       try {
-        // Check if Foundry is installed
-        try {
-          execSync('forge --version', { stdio: 'ignore' });
-        } catch (error) {
-          console.error(`${chalk.red('Error:')} Foundry is not installed.`);
-          console.log(`Run ${chalk.green('mega setup')} to install Foundry.`);
-          return;
-        }
+        execSync('forge --version', { stdio: 'ignore' });
+      } catch {
+        console.error(`${chalk.red('Error:')} Foundry is not installed.`);
+        console.log(`Run ${chalk.green('mega setup')} to install Foundry.`);
+        return;
+      }
 
-        // Set RPC URL based on --testnet flag (local is now default)
-        const rpcUrl = options.testnet 
-          ? 'https://carrot.megaeth.com/rpc'
-          : 'http://localhost:8545';
-        
-        console.log(`${chalk.blue('Deploying to:')} ${options.testnet ? 'Mega Testnet' : 'Local Network'}`);
-        console.log(`${chalk.gray('RPC URL:')} ${rpcUrl}`);
-        console.log(`${chalk.blue('Contract:')} ${contract}`);
-
-        if (!options.testnet) {  // If deploying to local network
-          // Check if any wallet option is provided
-          const hasWalletOption = options.privateKey || 
-                                 options.privateKeys || 
-                                 options.keystore || 
-                                 options.account || 
-                                 options.from || 
-                                 options.interactive;
-          
-          // If no wallet option is provided, use the default Anvil private key
-          if (!hasWalletOption) {
-            options.privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
-            console.log(`${chalk.gray('Using the first account provided by Anvil')}`);
-          }
-        }
-        
-        // Build forge create command
-        let forgeCommand = `forge create ${contract} --rpc-url ${rpcUrl}`;
-        
-        // Extract constructor args before processing other options
-        let constructorArgs = null;
-        if (options.constructorArgs && options.constructorArgs.length > 0) {
-          constructorArgs = options.constructorArgs;
-          // Remove it from options to avoid processing it twice
-          delete options.constructorArgs;
-        }
-        
-        // Process all other options
-        Object.entries(options).forEach(([key, value]) => {
-          // Skip the testnet flag as we've already handled it
-          if (key === 'testnet') return;
-          
-          // Skip undefined values
-          if (value === undefined) return;
-          
-          // Format the flag
-          const flag = key.length === 1 ? `-${key}` : `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-          
-          // Add the flag to the command
-          if (typeof value === 'boolean') {
-            if (value) forgeCommand += ` ${flag}`;
-          } else if (Array.isArray(value)) {
-            forgeCommand += ` ${flag} ${value.join(' ')}`;
-          } else {
-            forgeCommand += ` ${flag} ${value}`;
-          }
-        });
-        
-        // Get any passthrough args
-        const passthroughArgs = command.args.slice(1);
-        if (passthroughArgs.length > 0) {
-          forgeCommand += ` ${passthroughArgs.join(' ')}`;
-        }
-        
-        // Add constructor args at the end (important for forge)
-        if (constructorArgs) {
-          forgeCommand += ` --constructor-args ${constructorArgs.join(' ')}`;
-        }
-        
-        // Debug: Log the command being executed
-        // console.log(`${chalk.gray('Executing:')} ${forgeCommand}`);
-        
-        // Execute the forge command
-        execSync(forgeCommand, { stdio: 'inherit' });
-        
+      let network;
+      try {
+        network = resolveNetwork(options.network, options.rpcUrl);
+        await validateCustomRpc(network);
       } catch (error) {
-        // Forge will already show detailed errors, so we just handle the exception
-        if (error instanceof Error && error.message) {
-          console.error(`\n${chalk.red('Deployment failed. See above for details.')}`);
+        console.error(`${chalk.red('Network error:')} ${error instanceof Error ? error.message : String(error)}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      console.log(`${chalk.blue('Deploying to:')} ${network.chain.name} (chain ${network.chain.id})`);
+      console.log(`${chalk.gray('RPC URL:')} ${network.rpcUrl}`);
+      console.log(`${chalk.blue('Contract:')} ${contract}`);
+
+      if (network.name === 'local') {
+        const hasWalletOption = options.privateKey ||
+          options.privateKeys ||
+          options.keystore ||
+          options.account ||
+          options.from ||
+          options.interactive;
+
+        if (!hasWalletOption) {
+          options.privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+          console.log(chalk.gray('Using the first account provided by Anvil'));
         }
+      }
+
+      const constructorArgs = options.constructorArgs as string[] | undefined;
+      const forgeArgs = ['create', contract, '--rpc-url', network.rpcUrl];
+
+      for (const [key, value] of Object.entries(options)) {
+        if (['network', 'rpcUrl', 'constructorArgs'].includes(key) || value === undefined) continue;
+
+        const flag = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+
+        if (typeof value === 'boolean') {
+          if (value) forgeArgs.push(flag);
+        } else if (Array.isArray(value)) {
+          forgeArgs.push(flag, ...value.map(String));
+        } else {
+          forgeArgs.push(flag, String(value));
+        }
+      }
+
+      const passthroughArgs = command.args.slice(1);
+      if (passthroughArgs.length > 0) forgeArgs.push(...passthroughArgs);
+
+      if (constructorArgs?.length) {
+        forgeArgs.push('--constructor-args', ...constructorArgs);
+      }
+
+      try {
+        execFileSync('forge', forgeArgs, { stdio: 'inherit' });
+      } catch {
+        console.error(`\n${chalk.red('Deployment failed. See above for details.')}`);
         process.exit(1);
       }
     });
